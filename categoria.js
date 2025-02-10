@@ -12,7 +12,7 @@ function init(){
 
 //funcion limpiar
 function limpiar(){
-	$("#iddepartamento").val("");
+	$("#idcategoria").val("");
 	$("#nombre").val("");
 	$("#descripcion").val(""); 
 }
@@ -47,7 +47,6 @@ function listar(){
 		buttons: [
                   'copyHtml5',
                   'excelHtml5',
-                  
                   'pdf'
 		],
 		"ajax":
@@ -96,7 +95,7 @@ function mostrar(idcategoria){
 
 			$("#nombre").val(data.nombre);
 			$("#descripcion").val(data.descripcion);
-			$("#iddepartamento").val(data.idcategoria);
+			$("#idcategoria").val(data.idcategoria);
 		})
 }
 
@@ -135,8 +134,5 @@ function activar(idcategoria){
 		}
 	})
 }
-
-
-
 
 init();
