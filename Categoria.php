@@ -10,57 +10,56 @@ public function __construct(){
 }
 
 //metodo insertar regiustro
-public function insertar($nombre,$descripcion){
+public function insertar($nombre,$descripcion,$idusuario){
 		date_default_timezone_set('America/Mexico_City');
 	$fechacreada=date('Y-m-d H:i:s');
-	$sql="INSERT INTO categoria (nombre,descripcion,fechacreada) VALUES ('$nombre','$descripcion','$fechacreada')";
+	$sql="INSERT INTO categoria (nombre,descripcion,fechacreada,idusuario) VALUES ('$nombre','$descripcion','$fechacreada','$idusuario')";
 	return ejecutarConsulta($sql);
 }
 
 public function editar($idcategoria,$nombre,$descripcion,$idusuario){
-	$sql="UPDATE categoria  SET nombre='$nombre',descripcion='$descripcion',idusuario='$idusuario' 
-	WHERE idcategoria='$idcategoria'";
+	$sql="UPDATE categoria SET nombre='$nombre',descripcion='$descripcion',idusuario='$idusuario' 
+	WHERE $idcategoria='$idcategoria'";
 	return ejecutarConsulta($sql);
 }
 public function desactivar($idcategoria){
-	$sql="UPDATE categoria  SET fechacreada='0' WHERE idcategoria='$idcategoria'";
+	$sql="UPDATE categoria SET fechacreada='0' WHERE iddepartamento='$idcategoria'";
 	return ejecutarConsulta($sql);
 }
 public function activar($idcategoria){
-	$sql="UPDATE categoria  SET fechacreada='1' WHERE idcategoria='$idcategoria'";
+	$sql="UPDATE categoria SET fechacreada='1' WHERE iddepartamento='$idcategoria'";
 	return ejecutarConsulta($sql);
 }
 
 //metodo para mostrar registros
 public function mostrar($idcategoria){
-	$sql="SELECT * FROM categoria  WHERE idcategoria='$idcategoria'";
+	$sql="SELECT * FROM categoria WHERE idcategoria='$idcategoria'";
 	return ejecutarConsultaSimpleFila($sql);
 }
 
 //listar registros
 public function listar(){
-	$sql="SELECT * FROM categoria ";
+	$sql="SELECT * FROM categoria";
 	return ejecutarConsulta($sql);
 }
 //listar y mostrar en selct
 public function select(){
-	$sql="SELECT * FROM categoria ";
+	$sql="SELECT * FROM categoria";
 	return ejecutarConsulta($sql);
 }
 
-public function regresaRolDepartamento($idcategoria){
-	$sql="SELECT nombre FROM categoria  where idcategoria='$categoria'";		
+public function regresaRolDepartamento($categoria){
+	$sql="SELECT nombre FROM categoria where idcategoria='$categoria'";		
 	return ejecutarConsulta($sql);
 }
 public function eliminar($idcategoria)
 {
-    $sql="DELETE FROM categoria  WHERE idcategoria='$idcategoria'";
+    $sql="DELETE FROM categoria WHERE idcategoria='$idcategoria'";
     return ejecutarConsulta($sql);
 }
 
 
 
 }
-
 
  ?>
