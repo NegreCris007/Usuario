@@ -1,65 +1,95 @@
 <?php 
-// Incluir la conexión de base de datos
-require "../config/Conexion.php";
+require_once "../modelos/Articulo.php";
+if (strlen(session_id()) < 1) 
+    session_start();
 
-class Articulo {
+$articulo = new Articulo();
 
-    // Constructor
-    public function __construct() {}
+$idarticulo = isset($_POST["idarticulo"]) ? limpiarCadena($_POST["idarticulo"]) : "";
+$nombre = isset($_POST["nombre"]) ? limpiarCadena($_POST["nombre"]) : "";
+$codigo = isset($_POST["codigo"]) ? limpiarCadena($_POST["codigo"]) : "";
+$descripcion = isset($_POST["descripcion"]) ? limpiarCadena($_POST["descripcion"]) : "";
+$marca = isset($_POST["marca"]) ? limpiarCadena($_POST["marca"]) : "";
+$modelo = isset($_POST["modelo"]) ? limpiarCadena($_POST["modelo"]) : "";
+$puerto = isset($_POST["puerto"]) ? limpiarCadena($_POST["puerto"]) : "";
+$generacion = isset($_POST["generacion"]) ? limpiarCadena($_POST["generacion"]) : "";
+$ram = isset($_POST["ram"]) ? limpiarCadena($_POST["ram"]) : "";
+$rom = isset($_POST["rom"]) ? limpiarCadena($_POST["rom"]) : "";
+$idcategoria = isset($_POST["idcategoria"]) ? limpiarCadena($_POST["idcategoria"]) : "";
+$idusuario = $_SESSION["idusuario"];
 
-    // Método para insertar un nuevo artículo
-    public function insertar($nombre, $codigo, $descripcion, $marca, $modelo, $puerto, $generacion, $ram, $rom, $idcategoria, $idusuario) {
-        date_default_timezone_set('America/Mexico_City');
-        $fechacreada = date('Y-m-d H:i:s');
-        $sql = "INSERT INTO articulo (nombre, codigo, descripcion, marca, modelo, puerto, generacion, ram, rom, idcategoria, fechacreada, idusuario) 
-                VALUES ('$nombre', '$codigo', '$descripcion', '$marca', '$modelo', '$puerto', '$generacion', '$ram', '$rom', '$idcategoria', '$fechacreada', '$idusuario')";
-        return ejecutarConsulta($sql);
-    }
+switch ($_GET["op"]) {
 
-    // Método para editar un artículo existente
-    public function editar($idarticulo, $nombre, $codigo, $descripcion, $marca, $modelo, $puerto, $generacion, $ram, $rom, $idcategoria, $idusuario) {
-        $sql = "UPDATE articulo 
-                SET nombre='$nombre', codigo='$codigo', descripcion='$descripcion', marca='$marca', modelo='$modelo', 
-                    puerto='$puerto', generacion='$generacion', ram='$ram', rom='$rom', idcategoria='$idcategoria', idusuario='$idusuario' 
-                WHERE idarticulo='$idarticulo'";
-        return ejecutarConsulta($sql);
-    }
+    case 'guardaryeditar':
+        if (empty($idarticulo)) {
+            $rspta = $articulo->insertar($nombre, $codigo, $descripcion, $marca, $modelo, $puerto, $generacion, $ram, $rom, $idcategoria, $idusuario);
+            echo $rspta ? "Artículo registrado correctamente" : "No se pudo registrar el artículo";
+        } else {
+            $rspta = $articulo->editar($idarticulo, $nombre, $codigo, $descripcion, $marca, $modelo, $puerto, $generacion, $ram, $rom, $idcategoria, $idusuario);
+            echo $rspta ? "Artículo actualizado correctamente" : "No se pudo actualizar el artículo";
+        }
+        break;
 
-    // Método para desactivar un artículo
-    public function desactivar($idarticulo) {
-        $sql = "UPDATE articulo SET estado='0' WHERE idarticulo='$idarticulo'";
-        return ejecutarConsulta($sql);
-    }
+    case 'desactivar':
+        $rspta = $articulo->desactivar($idarticulo);
+        echo $rspta ? "Artículo desactivado correctamente" : "No se pudo desactivar el artículo";
+        break;
 
-    // Método para activar un artículo
-    public function activar($idarticulo) {
-        $sql = "UPDATE articulo SET estado='1' WHERE idarticulo='$idarticulo'";
-        return ejecutarConsulta($sql);
-    }
+    case 'activar':
+        $rspta = $articulo->activar($idarticulo);
+        echo $rspta ? "Artículo activado correctamente" : "No se pudo activar el artículo";
+        break;
 
-    // Método para mostrar un artículo específico
-    public function mostrar($idarticulo) {
-        $sql = "SELECT *FROM articulo WHERE idarticulo='$idarticulo'";
-        return ejecutarConsultaSimpleFila($sql);
-    }
+    case 'eliminar':
+        $rspta = $articulo->eliminar($idarticulo);
+        echo $rspta ? "Artículo eliminado correctamente" : "No se pudo eliminar el artículo";
+        break;
 
-    // Método para listar todos los artículos
-    public function listar() {
-        $sql = "SELECT *FROM articulo";
-       // $sql = "SELECT a.nombre as nombre, a.codigo as codigo, a.descripcion as descripcion, a.marca as marca, a.modelo as modelo, a.puerto as puerto, a.generacion as generacion, a.ram as ram, a.rom as rom, c.nombre as idcategoria, a.fechacreada as fechacreada FROM articulo as a INNER JOIN categoria as c ON a.idcategoria  = c.idcategoria";
-        return ejecutarConsulta($sql);
-    }
+    case 'mostrar':
+        $rspta = $articulo->mostrar($idarticulo);
+        echo json_encode($rspta);
+        break;
 
-    // Método para listar artículos en un select (dropdown)
-    public function selectCategoria() {
-        $sql = "SELECT * FROM categoria";
-        return ejecutarConsulta($sql);
-    }
+    case 'listar':
+        $rspta = $articulo->listar();
+        $data = Array();
 
-    // Método para eliminar un artículo
-    public function eliminar($idarticulo) {
-        $sql = "DELETE FROM articulo WHERE idarticulo='$idarticulo'";
-        return ejecutarConsulta($sql);
-    }
+        while ($reg = $rspta->fetch_object()) {
+            $data[] = array(
+
+				
+                "0" => '<button class="btn btn-warning btn-xs" onclick="mostrar(' . $reg->idarticulo . ')"><i class="fa fa-pencil"></i></button>' .
+                    ' <button class="btn btn-danger btn-xs" onclick="eliminar(' . $reg->idarticulo . ')"><i class="fa fa-trash"></i></button>',
+                "1" => $reg->nombre,
+                "2" => $reg->codigo,
+                "3" => $reg->descripcion,
+                "4" => $reg->marca,
+                "5" => $reg->modelo,
+                "6" => $reg->puerto,
+                "7" => $reg->generacion,
+                "8" => $reg->ram,
+                "9" => $reg->rom,
+                "10" => $reg->idcategoria,
+                "11" => $reg->fechacreada
+            );
+        }
+
+        $results = array(
+            "sEcho" => 1,
+            "iTotalRecords" => count($data),
+            "iTotalDisplayRecords" => count($data),
+            "aaData" => $data
+        );
+
+        echo json_encode($results);
+        break;
+
+    case 'selectCategoria':
+        $rspta = $articulo->selectCategoria();
+        echo '<option value="0">Seleccione...</option>';
+        while ($reg = $rspta->fetch_object()) {
+            echo '<option value="' . $reg->idcategoria . '">' . $reg->nombre . '</option>';
+        }
+        break;
 }
 ?>
